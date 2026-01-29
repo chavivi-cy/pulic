@@ -18,7 +18,7 @@ st.markdown("""
 
 # --- 顶部声明 ---
 st.title("🕊️ 苹果产品再制造业务调研系统")
-st.info("📊 **业务说明：** 以 iPhone 15 Pro 为财务基准。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
+st.info("📊 **业务说明：** 以 iPhone 15 Pro 为财务基准（2025-Q1）。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
 
 # --- 侧边栏 ---
 st.sidebar.header("🍃 决策因子")
