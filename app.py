@@ -6,7 +6,7 @@ import pandas as pd
 # 页面基础配置
 st.set_page_config(page_title="苹果再制造业务深度决策系统", layout="wide")
 
-# CSS 视觉增强：提升对比度与专业感
+# CSS 视觉增强
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
@@ -46,7 +46,7 @@ st.markdown("---")
 st.header("🌿 行业专题调研：交互可视化中心")
 qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", 
       "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", 
-      "Q7: 跨品牌残值对标", "Q8: 业务红线风险"]
+      "Q7: 跨品牌残值对标", "Q8: 业务风险红线矩阵"]
 sel_q = st.selectbox("请点选课题查看对应的交互图表：", qs)
 
 JP_COLORS = ['#87adab', '#d6a0a0', '#e9c46a', '#a8dadc', '#82a1b1']
@@ -84,7 +84,6 @@ elif sel_q == qs[3]:
 
 elif sel_q == qs[4]:
     st.write("### Q5: 渠道份额详细分布 (含具体占比)")
-    # 增加 textinfo 确保占比显示
     df5 = pd.DataFrame({
         "渠道": ["京东自营", "爱回收", "官网(iPad/Mac)", "转转及其他", "B2B集采"],
         "占比": [45, 20, 15, 10, 10],
@@ -97,7 +96,6 @@ elif sel_q == qs[4]:
 
 elif sel_q == qs[5]:
     st.write("### Q6: 目标用户画像分析 (受众分类与占比)")
-    # 细化受众分类与占比
     df6 = pd.DataFrame({
         "画像受众": ["精致白领 (性价比升级)", "数码极客 (官方拆解件)", "在校学生 (官翻入门)", "小镇青年 (大屏刚需)"],
         "人群占比 (%)": [35, 25, 25, 15],
@@ -117,8 +115,14 @@ elif sel_q == qs[6]:
 
 elif sel_q == qs[7]:
     st.write("### Q8: 业务风险红线矩阵 (气泡图)")
-    fig8 = px.scatter(x=[90, 85, 75], y=[95, 80, 70], text=["隐私安全","品牌溢价","售后纠纷"], size=[40, 25, 30], color_discrete_sequence=[JP_COLORS[2]])
+    # 按照要求更新 X 和 Y 轴标签
+    fig8 = px.scatter(x=[90, 85, 75], y=[95, 80, 70], text=["隐私安全","品牌溢价","售后纠纷"], 
+                     size=[40, 25, 30], color_discrete_sequence=[JP_COLORS[2]],
+                     labels={'x':'X：风险发生概率', 'y':'Y：负面冲击程度'})
     st.plotly_chart(fig8, use_container_width=True)
+
+else:
+    st.info("请选择上方课题进行数据分析")
 
 st.markdown("---")
 
