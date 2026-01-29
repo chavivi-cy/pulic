@@ -45,7 +45,7 @@ st.markdown("---")
 # --- 8大课题交互区 (全独立可视化) ---
 st.header("🌿 行业专题调研：交互可视化中心")
 qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", 
-      "Q4: 业务流程与损耗", "Q5: 出货渠道份额", "Q6: 目标用户画像", 
+      "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", 
       "Q7: 跨品牌残值对标", "Q8: 业务红线风险"]
 sel_q = st.selectbox("请点选课题查看对应的交互图表：", qs)
 
@@ -83,10 +83,30 @@ elif sel_q == qs[3]:
     st.plotly_chart(fig4, use_container_width=True)
 
 elif sel_q == qs[4]:
-    st.write("### Q5: 渠道份额分布 (Treemap)")
-    df5 = pd.DataFrame({"C":["京东自营","爱回收","官网(iPad/Mac)","转转及其他","B2B集采"],"V":[45,20,15,10,10]})
-    fig5 = px.treemap(df5, path=["C"], values='V', color_discrete_sequence=JP_COLORS)
+    st.write("### Q5: 渠道份额详细分布 (含具体占比)")
+    # 增加 textinfo 确保占比显示
+    df5 = pd.DataFrame({
+        "渠道": ["京东自营", "爱回收", "官网(iPad/Mac)", "转转及其他", "B2B集采"],
+        "占比": [45, 20, 15, 10, 10],
+        "父级": ["所有渠道"] * 5
+    })
+    fig5 = px.treemap(df5, path=["父级", "渠道"], values='占比', 
+                     color='占比', color_continuous_scale='Tealgrn')
+    fig5.update_traces(textinfo="label+value+percent parent")
     st.plotly_chart(fig5, use_container_width=True)
+
+elif sel_q == qs[5]:
+    st.write("### Q6: 目标用户画像分析 (受众分类与占比)")
+    # 细化受众分类与占比
+    df6 = pd.DataFrame({
+        "画像受众": ["精致白领 (性价比升级)", "数码极客 (官方拆解件)", "在校学生 (官翻入门)", "小镇青年 (大屏刚需)"],
+        "人群占比 (%)": [35, 25, 25, 15],
+        "核心诉求权重": [92, 95, 88, 80]
+    })
+    fig6 = px.bar(df6, x="人群占比 (%)", y="画像受众", orientation='h', 
+                 color="人群占比 (%)", color_continuous_scale='Burg', text="人群占比 (%)")
+    fig6.update_traces(texttemplate='%{text}%', textposition='outside')
+    st.plotly_chart(fig6, use_container_width=True)
 
 elif sel_q == qs[6]:
     st.write("### Q7: 品牌残值衰减对标 (1-36个月)")
@@ -99,11 +119,6 @@ elif sel_q == qs[7]:
     st.write("### Q8: 业务风险红线矩阵 (气泡图)")
     fig8 = px.scatter(x=[90, 85, 75], y=[95, 80, 70], text=["隐私安全","品牌溢价","售后纠纷"], size=[40, 25, 30], color_discrete_sequence=[JP_COLORS[2]])
     st.plotly_chart(fig8, use_container_width=True)
-
-else:
-    st.write("### Q6: 目标用户画像画像分析")
-    fig6 = px.bar(x=[92, 88, 95, 65], y=["品牌执念","价格敏感","质量可靠","ESG认同"], orientation='h', color_discrete_sequence=[JP_COLORS[1]])
-    st.plotly_chart(fig6, use_container_width=True)
 
 st.markdown("---")
 
