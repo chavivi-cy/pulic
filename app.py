@@ -27,7 +27,7 @@ buyback_rate = st.sidebar.slider("回收成本占比 (%)", 50, 85, 65)
 refurb_cost = st.sidebar.slider("整备及备件成本 (CNY)", 300, 1500, 750)
 log_warranty = st.sidebar.number_input("逆向物流及质保金 (CNY)", value=480)
 
-# 财务逻辑
+# 财务逻辑计算
 buyback_val = retail_price * (buyback_rate / 100)
 total_cost = buyback_val + refurb_cost + log_warranty
 net_profit = retail_price - total_cost
@@ -42,10 +42,9 @@ c4.metric("技术校验拦截率", "99.9%", "零件配对壁垒")
 
 st.markdown("---")
 
-# --- 模块二：8大课题交互式深度调研面板 (核心升级部分) ---
-st.header("🔍 8大课题专家深度洞察 (交互式)")
+# --- 模块二：8大课题交互式深度调研面板 ---
+st.header("🔍 8大课题专家深度洞察 (交互选择)")
 
-# 定义课题列表
 questions = [
     "Q1: 翻新业务的商业模型",
     "Q2: 核心商业目标分析",
@@ -57,51 +56,15 @@ questions = [
     "Q8: 为什么不参与纯二手业务"
 ]
 
-selected_q = st.selectbox("请选择您想要深入调研的课题：", questions)
+selected_q = st.selectbox("请选择您想要深入了解的课题：", questions)
 
-# 交互逻辑：根据选择显示不同看板
+# 交互逻辑：根据选择显示内容
 if selected_q == questions[0]:
     col_q1_a, col_q1_b = st.columns([1, 1])
     with col_q1_a:
         st.write("### 商业模型：资产价值再造")
-        st.write("""
-        苹果通过控制逆向供应链，将退货或回收的‘废旧资产’转化为‘标准商品’。
-        其核心在于利用**官方溢价（20%+）**覆盖**重整成本（~12%）**，实现远高于新机的渠道毛利。
-        """)
+        st.write("核心在于利用 **20% 的官方溢价** 覆盖 **12% 的重整成本**。通过控制逆向供应链，将废旧资产转化为高毛利的标准商品。")
     with col_q1_b:
-        # P&L 瀑布图作为模型展示
         fig = go.Figure(go.Waterfall(
             orientation = "v",
-            x = ["零售价", "回收", "整备", "物流", "净利"],
-            y = [retail_price, -buyback_val, -refurb_cost, -log_warranty, 0],
-            decreasing = {"marker":{"color":"#EF553B"}},
-            increasing = {"marker":{"color":"#228B22"}},
-            totals = {"marker":{"color":"#1f77b4"}}
-        ))
-        st.plotly_chart(fig, use_container_width=True)
-
-elif selected_q == questions[1]:
-    st.write("### 核心商业目标：锁住 LTV 与 生态闭环")
-    col_q2_a, col_q2_b = st.columns([1, 1])
-    with col_q2_a:
-        st.write("""
-        1. **拉新：** 35% 买家为首次进入 iOS。
-        2. **护盘：** 建立二手价格锚点，保护新机残值。
-        3. **ESG：** 履行 2025 再生金属使用承诺。
-        """)
-    with col_q2_b:
-        fig_pie = px.pie(names=['首次入坑买家', '存量升级买家'], values=[35, 65], hole=0.4, color_discrete_sequence=['#228B22', '#AB63FA'])
-        st.plotly_chart(fig_pie, use_container_width=True)
-
-elif selected_q == questions[2]:
-    st.write("### KSF：数字化确权与技术壁垒")
-    st.write("苹果利用 **Parts Pairing（部件配对）** 技术，使得非官方翻新机在功能上受到限制（如弹窗、丢失FaceID）。")
-    bar_data = pd.DataFrame({"类别": ["官方翻新", "三方精品", "华强北拼装"], "功能完备度": [100, 85, 40], "市场信任度": [98, 60, 15]})
-    fig_bar = px.bar(bar_data, x="类别", y="功能完备度", color="类别", text_auto=True)
-    st.plotly_chart(fig_bar, use_container_width=True)
-
-elif selected_q == questions[3]:
-    st.write("### 业务流程：全链路闭环")
-    # 使用桑基图展示流程细节
-    fig_sankey = go.Figure(go.Sankey(
-        node = dict(pad = 15, thickness = 20, label = ["回收",
+            x = ["零售价", "回收", "整备",
