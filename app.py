@@ -6,20 +6,22 @@ import pandas as pd
 # 页面基础配置
 st.set_page_config(page_title="苹果逆向供应链深度决策系统", layout="wide")
 
-# 自定义 CSS 优化视觉
+# 自定义视觉风格
 st.markdown("""
     <style>
-    .stAlert { background-color: #f0f2f6; border: none; border-left: 5px solid #00D1B2; }
-    h3 { color: #31333F; border-bottom: 2px solid #00D1B2; padding-bottom: 5px; }
+    .main { background-color: #f8f9fa; }
+    .stMetric { background-color: #ffffff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    h2, h3 { color: #1e293b; border-bottom: 2px solid #228B22; padding-bottom: 8px; }
+    .insight-box { background-color: #ffffff; padding: 20px; border-radius: 10px; border-left: 5px solid #228B22; margin-top: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 顶部：业务基准声明 ---
-st.title("🍏 苹果产品再制造 (Remanufacturing) 业务决策分析系统")
+st.title("🍏 苹果产品再制造 (Remanufacturing) 业务深度调研看板")
 st.info("📊 **业务基准：** 以 iPhone 15 Pro (128G) 在 2025 年初翻新市场定价为核心计算模型")
 
 # --- 侧边栏：交互因子 ---
-st.sidebar.header("⚙️ 动态模拟参数")
+st.sidebar.header("⚙️ 模拟参数 (用于损益测算)")
 retail_price = st.sidebar.slider("翻新零售均价 (CNY)", 4000, 9500, 6199)
 buyback_rate = st.sidebar.slider("回收成本占比 (%)", 50, 85, 65)
 refurb_cost = st.sidebar.slider("整备及备件成本 (CNY)", 300, 1500, 750)
@@ -31,98 +33,75 @@ total_cost = buyback_val + refurb_cost + log_warranty
 net_profit = retail_price - total_cost
 margin_pct = (net_profit / retail_price) * 100
 
-# --- 模块一：核心指标 (对应问题 1, 2) ---
+# --- 模块一：核心指标看板 ---
 c1, c2, c3, c4 = st.columns(4)
 c1.metric("预测单机利润", f"¥{net_profit:,.0f}", f"毛利 {margin_pct:.1f}%")
 c2.metric("回收成本锚点", f"¥{buyback_val:,.0f}", f"占比 {buyback_rate}%")
-c3.metric("市场流转溢价", "22%", "对比第三方非官翻")
+c3.metric("市场流转溢价", "22%", "对比社会二手")
 c4.metric("技术校验拦截率", "99.9%", "零件配对壁垒")
 
 st.markdown("---")
 
-# --- 模块二：8大核心课题深度交互 (覆盖客户 8 个问题) ---
-st.header("🔍 行业专题调研与深度洞察")
-with st.expander("点击展开：针对研究员 8 大课题的专家反馈集"):
-    q_cols = st.columns(2)
-    with q_cols[0]:
-        st.markdown("**Q1. 商业模型：** 核心在于“残值再造”。利用 20% 的官方溢价覆盖 12% 的重整成本。")
-        st.markdown("**Q2. 商业目标：** 锁定 LTV（用户生命周期价值）。35% 的官翻买家是首次入坑。")
-        st.markdown("**Q3. 关键成功因素：** 数字化确权。通过 Parts Pairing 锁死第三方翻新空间。")
-        st.markdown("**Q4. 业务流程：** 逆向物流环节的 Grading（等级分选）是成本控制的胜负手。")
-    with q_cols[1]:
-        st.markdown("**Q5. 出货渠道：** 中国区 iPhone 资源机约 65% 经由京东/爱回收等授权分销消化。")
-        st.markdown("**Q6. 目标画像：** 精致实用主义白领为主，追求“官方一年质保”带来的安全感。")
-        st.markdown("**Q7. 安卓可行性：** 残值曲线不支持。安卓旗舰 12 月残值仅 40%，无法覆盖整备 P&L。")
-        st.markdown("**Q8. 为什么不碰纯二手？** 隐私抹除责任与品牌价值稀释是厂商不可逾越的红线。")
+# --- 模块二：8大课题交互式深度调研面板 (核心升级部分) ---
+st.header("🔍 8大课题专家深度洞察 (交互式)")
 
-st.markdown("---")
+# 定义课题列表
+questions = [
+    "Q1: 翻新业务的商业模型",
+    "Q2: 核心商业目标分析",
+    "Q3: 关键成功因素(KSF)",
+    "Q4: 业务流程与质量标准",
+    "Q5: 中国区主要出货渠道",
+    "Q6: 目标用户画像分析",
+    "Q7: 对标安卓厂商的可行性",
+    "Q8: 为什么不参与纯二手业务"
+]
 
-# --- 模块三：深度分析可视化 ---
-t1, t2, t3 = st.tabs(["💰 财务损益分析", "📈 跨品牌残值对比", "🌐 中国区流转路径"])
+selected_q = st.selectbox("请选择您想要深入调研的课题：", questions)
 
-with t1:
-    col_a, col_b = st.columns([2, 1])
-    with col_a:
-        st.subheader("单机损益 (P&L) 结构拆解")
-        fig_waterfall = go.Figure(go.Waterfall(
+# 交互逻辑：根据选择显示不同看板
+if selected_q == questions[0]:
+    col_q1_a, col_q1_b = st.columns([1, 1])
+    with col_q1_a:
+        st.write("### 商业模型：资产价值再造")
+        st.write("""
+        苹果通过控制逆向供应链，将退货或回收的‘废旧资产’转化为‘标准商品’。
+        其核心在于利用**官方溢价（20%+）**覆盖**重整成本（~12%）**，实现远高于新机的渠道毛利。
+        """)
+    with col_q1_b:
+        # P&L 瀑布图作为模型展示
+        fig = go.Figure(go.Waterfall(
             orientation = "v",
-            measure = ["relative", "relative", "relative", "relative", "total"],
-            x = ["零售均价", "回收成本", "整备物料", "逆向质保", "净收益"],
+            x = ["零售价", "回收", "整备", "物流", "净利"],
             y = [retail_price, -buyback_val, -refurb_cost, -log_warranty, 0],
-            text = [f"+{retail_price}", f"-{buyback_val:.0f}", f"-{refurb_cost}", f"-{log_warranty}", f"={net_profit:.0f}"],
             decreasing = {"marker":{"color":"#EF553B"}},
-            increasing = {"marker":{"color":"#00D1B2"}},
+            increasing = {"marker":{"color":"#228B22"}},
             totals = {"marker":{"color":"#1f77b4"}}
         ))
-        st.plotly_chart(fig_waterfall, use_container_width=True)
-    with col_b:
-        st.subheader("回收敏感度测算")
-        rates = [55, 60, 65, 70, 75]
-        sensitivity = pd.DataFrame({
-            "回收占比": [f"{r}%" for r in rates],
-            "单机利润": [f"¥{retail_price*(1-r/100)-refurb_cost-log_warranty:,.0f}" for r in rates]
-        })
-        st.table(sensitivity)
+        st.plotly_chart(fig, use_container_width=True)
 
-with t2:
-    st.subheader("1-36个月残值保持率 (RV) 对比曲线")
-    months = [1, 6, 12, 18, 24, 30, 36]
-    df_rv = pd.DataFrame({
-        "月份": months * 4,
-        "保持率 (%)": [95, 85, 71, 65, 58, 52, 45,  # Apple (Green)
-                    92, 80, 65, 50, 42, 35, 28,  # Huawei (Orange)
-                    88, 75, 55, 45, 38, 30, 22,  # Samsung (Blue)
-                    80, 55, 40, 28, 18, 10, 5],   # Others (Red)
-        "品牌": ["Apple (iPhone)"]*7 + ["Huawei (CPO)"]*7 + ["Samsung (Flagship)"]*7 + ["其他安卓机型"]*7
-    })
-    fig_rv = px.line(df_rv, x="月份", y="保持率 (%)", color="品牌", markers=True, 
-                     color_discrete_map={
-                         "Apple (iPhone)": "#228B22", 
-                         "Huawei (CPO)": "#FF8C00", 
-                         "Samsung (Flagship)": "#4169E1", 
-                         "其他安卓机型": "#B22222"})
-    st.plotly_chart(fig_rv, use_container_width=True)
-    st.caption("专家洞察：苹果的残值曲线是典型的“对数型衰减”，其长期保值能力支撑了再制造业务的高溢价。")
+elif selected_q == questions[1]:
+    st.write("### 核心商业目标：锁住 LTV 与 生态闭环")
+    col_q2_a, col_q2_b = st.columns([1, 1])
+    with col_q2_a:
+        st.write("""
+        1. **拉新：** 35% 买家为首次进入 iOS。
+        2. **护盘：** 建立二手价格锚点，保护新机残值。
+        3. **ESG：** 履行 2025 再生金属使用承诺。
+        """)
+    with col_q2_b:
+        fig_pie = px.pie(names=['首次入坑买家', '存量升级买家'], values=[35, 65], hole=0.4, color_discrete_sequence=['#228B22', '#AB63FA'])
+        st.plotly_chart(fig_pie, use_container_width=True)
 
-with t3:
-    st.subheader("中国区逆向供应链流转全景 (Sankey)")
-    # 彩色化桑基图，加入具体流转方式与厂商名称
+elif selected_q == questions[2]:
+    st.write("### KSF：数字化确权与技术壁垒")
+    st.write("苹果利用 **Parts Pairing（部件配对）** 技术，使得非官方翻新机在功能上受到限制（如弹窗、丢失FaceID）。")
+    bar_data = pd.DataFrame({"类别": ["官方翻新", "三方精品", "华强北拼装"], "功能完备度": [100, 85, 40], "市场信任度": [98, 60, 15]})
+    fig_bar = px.bar(bar_data, x="类别", y="功能完备度", color="类别", text_auto=True)
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+elif selected_q == questions[3]:
+    st.write("### 业务流程：全链路闭环")
+    # 使用桑基图展示流程细节
     fig_sankey = go.Figure(go.Sankey(
-        node = dict(
-          pad = 15, thickness = 20, line = dict(color = "black", width = 0.5),
-          label = ["C端/Trade-in (回收源)", "退货机 (14天无理由)", "残值评估 (Brightstar)", "逆向物流 (顺丰/EMS)", 
-                   "检测整备 (富士康/和硕)", "直营零售 (官网/零售店)", "授权分销 (京东二手/爱回收)", "B2B集采 (政企办公)"],
-          color = ["#228B22", "#FF8C00", "#4169E1", "#808080", "#AB63FA", "#00D1B2", "#FFA07A", "#FFD700"]
-        ),
-        link = dict(
-          source = [0, 1, 2, 3, 4, 4, 4], 
-          target = [2, 2, 3, 4, 5, 6, 7],
-          value = [55, 15, 70, 70, 15, 65, 20]
-        )
-    ))
-    st.plotly_chart(fig_sankey, use_container_width=True)
-    st.markdown("""
-    **链路解析：**
-    * **回收核心：** 绝大部分 iPhone 资源机并不流向官网，而是经由 **Brightstar** 评估后，分发至 **京东二手自营** 及 **爱回收**。
-    * **再制造标准：** 检测整备在 **富士康/和硕** 专属产线完成，确保原厂电池与外壳 100% 替换。
-    """)
+        node = dict(pad = 15, thickness = 20, label = ["回收",
