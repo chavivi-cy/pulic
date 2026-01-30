@@ -6,12 +6,14 @@ import pandas as pd
 # 页面基础配置
 st.set_page_config(page_title="苹果再制造业务深度决策系统", layout="wide")
 
-# CSS 视觉增强
+# CSS 视觉增强：强制修改顶部看板文字为白色
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
+    /* 强制顶部指标看板文字为白色 */
+    [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem !important; }
+    [data-testid="stMetricLabel"] { color: #ffffff !important; font-size: 1.1rem !important; }
     .stMetric { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-    .stMetric [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem; }
     h1, h2, h3 { color: #f8fafc; font-family: "Hiragino Sans GB", sans-serif; }
     </style>
     """, unsafe_allow_html=True)
@@ -30,10 +32,10 @@ refurb_c = st.sidebar.slider("整备成本 (CNY)", 300, 1500, 750)
 
 # 核心损益计算
 buyback_v = retail_p * (buyback_r / 100)
-profit = retail_p - (buyback_v + refurb_c + 480) # 480 为固定物流质保成本
+profit = retail_p - (buyback_v + refurb_c + 480) 
 margin = (profit / retail_p) * 100
 
-# --- 指标看板 ---
+# --- 指标看板 (文字已设为白色) ---
 c1, c2, c3, c4 = st.columns(4)
 with c1: st.metric("预测单机利润", f"¥{profit:,.0f}", f"{margin:.1f}% 毛利")
 with c2: st.metric("回收对价锚点", f"¥{buyback_v:,.0f}", f"{buyback_r}% 占比")
@@ -42,7 +44,7 @@ with c4: st.metric("零件配对率", "99.9%", "数字化壁垒")
 
 st.markdown("---")
 
-# --- 8大课题交互区 (全独立可视化) ---
+# --- 8大课题交互区 ---
 st.header("🌿 行业专题调研：交互可视化中心")
 qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", 
       "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", 
@@ -61,20 +63,20 @@ if sel_q == qs[0]:
     st.plotly_chart(fig1, use_container_width=True)
 
 elif sel_q == qs[1]:
-    st.write("### Q2: 商业目标 - 存量留存与新客拉新 (旭日图)")
+    st.write("### Q2: 商业目标 - 存量留存与新客拉新")
     df2 = pd.DataFrame({"A":["拉新","拉新","留存","留存"],"B":["新入iOS","安卓切换","旧机换新","服务增购"],"V":[20,15,45,20]})
     fig2 = px.sunburst(df2, path=['A','B'], values='V', color_discrete_sequence=[JP_COLORS[0], JP_COLORS[3]])
     st.plotly_chart(fig2, use_container_width=True)
 
 elif sel_q == qs[2]:
-    st.write("### Q3: KSF - 技术确权维度图 (雷达图)")
+    st.write("### Q3: KSF - 技术确权维度图")
     df3 = pd.DataFrame(dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权']))
     fig3 = px.line_polar(df3, r='r', theta='theta', line_close=True)
     fig3.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
     st.plotly_chart(fig3, use_container_width=True)
 
 elif sel_q == qs[3]:
-    st.write(f"### Q4: 损耗过滤 - 基于 {base_vol_k}k 台基数的损耗分析 (含占比)")
+    st.write(f"### Q4: 损耗过滤 - 基于 {base_vol_k}k 台基数的损耗分析")
     fig4 = go.Figure(go.Funnel(
         y=["回收总量 (100%)", "通过初检 (85%)", "原厂重整 (80%)", "合格成品 (78%)"], 
         x=[base_vol, base_vol*0.85, base_vol*0.80, base_vol*0.78], 
@@ -86,11 +88,9 @@ elif sel_q == qs[4]:
     st.write("### Q5: 渠道份额详细分布 (含具体占比)")
     df5 = pd.DataFrame({
         "渠道": ["京东自营", "爱回收", "官网(iPad/Mac)", "转转及其他", "B2B集采"],
-        "占比": [45, 20, 15, 10, 10],
-        "父级": ["所有渠道"] * 5
+        "占比": [45, 20, 15, 10, 10], "父级": ["所有渠道"] * 5
     })
-    fig5 = px.treemap(df5, path=["父级", "渠道"], values='占比', 
-                     color='占比', color_continuous_scale='Tealgrn')
+    fig5 = px.treemap(df5, path=["父级", "渠道"], values='占比', color='占比', color_continuous_scale='Tealgrn')
     fig5.update_traces(textinfo="label+value+percent parent")
     st.plotly_chart(fig5, use_container_width=True)
 
@@ -98,11 +98,9 @@ elif sel_q == qs[5]:
     st.write("### Q6: 目标用户画像分析 (受众分类与占比)")
     df6 = pd.DataFrame({
         "画像受众": ["精致白领 (性价比升级)", "数码极客 (官方拆解件)", "在校学生 (官翻入门)", "小镇青年 (大屏刚需)"],
-        "人群占比 (%)": [35, 25, 25, 15],
-        "核心诉求权重": [92, 95, 88, 80]
+        "人群占比 (%)": [35, 25, 25, 15], "核心诉求权重": [92, 95, 88, 80]
     })
-    fig6 = px.bar(df6, x="人群占比 (%)", y="画像受众", orientation='h', 
-                 color="人群占比 (%)", color_continuous_scale='Burg', text="人群占比 (%)")
+    fig6 = px.bar(df6, x="人群占比 (%)", y="画像受众", orientation='h', color="人群占比 (%)", color_continuous_scale='Burg', text="人群占比 (%)")
     fig6.update_traces(texttemplate='%{text}%', textposition='outside')
     st.plotly_chart(fig6, use_container_width=True)
 
@@ -114,26 +112,27 @@ elif sel_q == qs[6]:
     st.plotly_chart(fig7, use_container_width=True)
 
 elif sel_q == qs[7]:
-    st.write("### Q8: 业务风险红线矩阵 (气泡图)")
-    # 按照要求更新 X 和 Y 轴标签
+    st.write("### Q8: 业务风险红线矩阵")
     fig8 = px.scatter(x=[90, 85, 75], y=[95, 80, 70], text=["隐私安全","品牌溢价","售后纠纷"], 
                      size=[40, 25, 30], color_discrete_sequence=[JP_COLORS[2]],
                      labels={'x':'X：风险发生概率', 'y':'Y：负面冲击程度'})
     st.plotly_chart(fig8, use_container_width=True)
 
-else:
-    st.info("请选择上方课题进行数据分析")
-
 st.markdown("---")
 
-# --- 流转全景 (100% 渠道闭环) ---
+# --- 流转全景 (字体颜色强制改为黑色) ---
 st.header("🌐 中国区逆向流转全景 (数据闭环版)")
 fig_s = go.Figure(go.Sankey(
-    node = dict(pad=45, thickness=25, label=[
-        "个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", 
-        "价值评估", "逆向物流", "检测整备工厂", 
-        "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"
-    ], color=[JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]),
+    node = dict(
+        pad=45, thickness=25, 
+        label=[
+            "个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", 
+            "价值评估", "逆向物流", "检测整备工厂", 
+            "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"
+        ], 
+        color=[JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"],
+        font = dict(color="black", size=12) # 强制节点标签字体为黑色
+    ),
     link = dict(source=[0, 1, 2, 3, 4, 5, 5, 5, 5, 5], target=[3, 3, 3, 4, 5, 6, 7, 8, 9, 10], value=[65, 20, 15, 100, 100, 45, 20, 15, 10, 10], color="rgba(200, 200, 200, 0.4)")
 ))
 st.plotly_chart(fig_s, use_container_width=True)
