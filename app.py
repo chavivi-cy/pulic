@@ -6,11 +6,10 @@ import pandas as pd
 # 页面基础配置
 st.set_page_config(page_title="苹果再制造业务深度决策系统", layout="wide")
 
-# CSS 视觉增强：仅处理颜色和布局，不改业务逻辑
+# CSS 视觉增强：保持顶部白色文字，背景深色
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
-    /* 顶部指标看板：文字设为白色 */
     [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem !important; }
     [data-testid="stMetricLabel"] { color: #ffffff !important; font-size: 1.1rem !important; }
     .stMetric { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
@@ -24,7 +23,7 @@ st.title("🕊️ 苹果产品再制造业务调研系统")
 st.info("📊 **业务基准：** 以 iPhone 15 Pro 为财务模型（2025-Q1）。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
 
 # --- 侧边栏 ---
-st.sidebar.header("🍃 决策因子模拟")
+st.sidebar.header("🍃 决策因子")
 base_vol_k = st.sidebar.slider("月流转规模 (k - 千台)", 1, 1000, 500)
 base_vol = base_vol_k * 1000
 retail_p = st.sidebar.slider("零售价 (CNY)", 4000, 9500, 6199)
@@ -54,7 +53,6 @@ sel_q = st.selectbox("请点选课题查看对应的交互图表：", qs)
 
 JP_COLORS = ['#87adab', '#d6a0a0', '#e9c46a', '#a8dadc', '#82a1b1']
 
-# Q1-Q8 独立逻辑 (修复变量定义报错)
 if sel_q == qs[0]:
     st.write("### Q1: 商业模型 - 价值堆叠筑屋图")
     fig = go.Figure([
@@ -115,26 +113,30 @@ elif sel_q == qs[7]:
     st.plotly_chart(fig, use_container_width=True)
 
 else:
-    st.write("### Q2: 商业目标 - 拉新与留存")
+    st.write("### Q2: 商业目标 - 拉新与留存 (旭日图)")
     df2 = pd.DataFrame({"A":["拉新","拉新","留存","留存"],"B":["新入iOS","安卓切换","旧机换新","服务增购"],"V":[20,15,45,20]})
     fig = px.sunburst(df2, path=['A','B'], values='V', color_discrete_sequence=[JP_COLORS[0], JP_COLORS[3]])
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 
-# --- 流转全景 (核心修复版：修复索引不匹配报错) ---
+# --- 模块三：流转全景 (终极修复版：修复括号不闭合与索引报错) ---
 st.header("🌐 中国区逆向流转全景")
 
-# 定义节点，确保数量与 link 的索引对应 (共 11 个)
-nodes = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
-# 节点色彩
-colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
+# 1. 明确定义 11 个节点
+nodes_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
 
-fig_sankey = go.Figure(go.Sankey(
+# 2. 定义 11 个颜色
+nodes_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
+
+# 3. 构建 Sankey 图表对象，确保括号完全闭合
+fig_sankey = go.Figure(data=[go.Sankey(
     node = dict(
-        pad = 40, thickness = 25, line = dict(color = "#ffffff", width = 1),
-        label = nodes,
-        color = colors,
+        pad = 40,
+        thickness = 25,
+        line = dict(color = "#ffffff", width = 1),
+        label = nodes_labels,
+        color = nodes_colors,
         font = dict(color="black", size=12)
     ),
     link = dict(
@@ -143,7 +145,7 @@ fig_sankey = go.Figure(go.Sankey(
         value = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10], 
         color = "rgba(189, 195, 199, 0.4)"
     )
-))
+)])
 
-fig_sankey.update_layout(height=500)
+fig_sankey.update_layout(height=550, margin=dict(l=20, r=20, t=20, b=20))
 st.plotly_chart(fig_sankey, use_container_width=True)
