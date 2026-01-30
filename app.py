@@ -150,27 +150,13 @@ else:
 st.markdown("---")
 
 # --- 流转全景 ---
-st.header("🌐 中国区逆向流转全景")
-
-# 精准定义 11 个节点
-sk_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
-# 精准定义 11 个颜色
-sk_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
-
-# 严格校验连线：10条源 -> 10条目标
-sk_src = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5]
-sk_tgt = [3, 3, 3, 4, 5, 6, 7, 8, 9, 10]
-sk_val = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10]
-
-fig_final = go.Figure(go.Sankey(
-    node = dict(
-        pad=40, thickness=25, 
-        line=dict(color="white", width=1), 
-        label=sk_labels, color=sk_colors, 
-        font=dict(color="black", size=12) # 节点字体强制黑字
-    ),
-    link = dict(source=sk_src, target=sk_tgt, value=sk_val, color="rgba(189, 195, 199, 0.4)")
+st.header("🌐 中国区逆向流转全景 (数据闭环版)")
+fig_s = go.Figure(go.Sankey(
+    node = dict(pad=45, thickness=25, label=[
+        "个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", 
+        "价值评估", "逆向物流", "检测整备工厂", 
+        "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"
+    ], color=[JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]),
+    link = dict(source=[0, 1, 2, 3, 4, 5, 5, 5, 5, 5], target=[3, 3, 3, 4, 5, 6, 7, 8, 9, 10], value=[65, 20, 15, 100, 100, 45, 20, 15, 10, 10], color="rgba(200, 200, 200, 0.4)")
 ))
-
-fig_final.update_layout(height=550)
-st.plotly_chart(fig_final, use_container_width=True)
+st.plotly_chart(fig_s, use_container_width=True)
