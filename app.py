@@ -59,7 +59,8 @@ JP_COLORS = ['#87adab', '#d6a0a0', '#e9c46a', '#a8dadc', '#82a1b1']
 
 if sel_q == qs[0]:
     st.write("### Q1: 商业模型 - 价值堆叠筑屋图")
-    fig = go.Figure([
+    # 使用列表直接定义，避免多行缩进错误
+    fig = go.Figure(data=[
         go.Bar(name='回收成本', x=['P&L'], y=[buyback_v], marker_color=JP_COLORS[0]),
         go.Bar(name='整备增值', x=['P&L'], y=[refurb_c+480], base=buyback_v, marker_color=JP_COLORS[1]),
         go.Bar(name='净利润', x=['P&L'], y=[profit], base=buyback_v+refurb_c+480, marker_color=JP_COLORS[2])
@@ -68,14 +69,23 @@ if sel_q == qs[0]:
 
 elif sel_q == qs[1]:
     st.write("### Q2: 商业目标 - 拉新与留存 (旭日图)")
-    df2 = pd.DataFrame({"A":["拉新","拉新","留存","留存"],"B":["新入iOS","安卓切换","旧机换新","服务增购"],"V":[20,15,45,20]})
+    # 明确定义 df2，防止 NameError
+    df2 = pd.DataFrame({
+        "A": ["拉新", "拉新", "留存", "留存"],
+        "B": ["新入iOS", "安卓切换", "旧机换新", "服务增购"],
+        "V": [20, 15, 45, 20]
+    })
     fig = px.sunburst(df2, path=['A','B'], values='V', color_discrete_sequence=[JP_COLORS[0], JP_COLORS[3]])
     st.plotly_chart(fig, use_container_width=True)
 
 elif sel_q == qs[2]:
     st.write("### Q3: KSF - 技术确权维度图")
-    df3 = pd.DataFrame(dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权']))
-    fig = px.line_polar(df3, r='r', theta='theta', line_close=True)
+    # 明确定义 df3_data
+    df3_data = pd.DataFrame({
+        "r": [98, 95, 99, 88, 92],
+        "theta": ['部件配对', 'SN溯源', '激活校验', 'ATE测试', '定价权']
+    })
+    fig = px.line_polar(df3_data, r='r', theta='theta', line_close=True)
     fig.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
     st.plotly_chart(fig, use_container_width=True)
 
@@ -84,7 +94,8 @@ elif sel_q == qs[3]:
     fig = go.Figure(go.Funnel(
         y=["回收总量 (100%)", "通过初检 (85%)", "原厂重整 (80%)", "合格成品 (78%)"], 
         x=[base_vol, base_vol*0.85, base_vol*0.80, base_vol*0.78], 
-        marker={"color": JP_COLORS}, textinfo="value+percent initial"
+        marker={"color": JP_COLORS}, 
+        textinfo="value+percent initial"
     ))
     st.plotly_chart(fig, use_container_width=True)
 
@@ -92,7 +103,8 @@ elif sel_q == qs[4]:
     st.write("### Q5: 渠道份额详细分布")
     df5 = pd.DataFrame({
         "渠道": ["京东自营", "爱回收", "官网(iPad/Mac)", "转转及其他", "B2B集采"],
-        "占比": [45, 20, 15, 10, 10], "父级": ["所有渠道"] * 5
+        "占比": [45, 20, 15, 10, 10], 
+        "父级": ["所有渠道"] * 5
     })
     fig = px.treemap(df5, path=["父级", "渠道"], values='占比', color='占比', color_continuous_scale='Tealgrn')
     fig.update_traces(textinfo="label+value+percent parent")
@@ -110,16 +122,25 @@ elif sel_q == qs[5]:
 
 elif sel_q == qs[6]:
     st.write("### Q7: 品牌残值衰减对标")
-    m = [1, 6, 12, 18, 24, 30, 36]
-    df7 = pd.DataFrame({"月":m*4,"RV":[95,85,71,65,58,52,45, 92,80,65,50,42,35,28, 88,75,55,45,38,30,22, 80,55,40,28,18,10,5],"B":["Apple"]*7+["Huawei"]*7+["Samsung"]*7+["安卓平均"]*7})
+    m_list = [1, 6, 12, 18, 24, 30, 36]
+    df7 = pd.DataFrame({
+        "月": m_list*4,
+        "RV": [95,85,71,65,58,52,45, 92,80,65,50,42,35,28, 88,75,55,45,38,30,22, 80,55,40,28,18,10,5],
+        "B": ["Apple"]*7 + ["Huawei"]*7 + ["Samsung"]*7 + ["安卓平均"]*7
+    })
     fig = px.line(df7, x="月", y="RV", color="B", markers=True, color_discrete_map={"Apple":"#27ae60","Huawei":"#e67e22","Samsung":"#3498db","安卓平均":"#e74c3c"})
     st.plotly_chart(fig, use_container_width=True)
 
 elif sel_q == qs[7]:
     st.write("### Q8: 业务风险红线矩阵")
-    fig = px.scatter(x=[90, 85, 75], y=[95, 80, 70], text=["隐私安全","品牌溢价","售后纠纷"], 
-                     size=[40, 25, 30], color_discrete_sequence=[JP_COLORS[2]],
-                     labels={'x':'X：风险发生概率', 'y':'Y：负面冲击程度'})
+    fig = px.scatter(
+        x=[90, 85, 75], 
+        y=[95, 80, 70], 
+        text=["隐私安全","品牌溢价","售后纠纷"], 
+        size=[40, 25, 30], 
+        color_discrete_sequence=[JP_COLORS[2]],
+        labels={'x':'X：风险发生概率', 'y':'Y：负面冲击程度'}
+    )
     st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
@@ -127,9 +148,9 @@ st.markdown("---")
 # 7. 流转全景 (终极无错版)
 st.header("🌐 中国区逆向流转全景")
 
-# === 核心修复区：定义变量，防止语法错误 ===
-# 定义11个节点标签
-sankey_labels = [
+# === 变量定义区：防止语法错误的“安全区” ===
+# 定义11个节点标签 (List)
+sankey_nodes = [
     "个人回收源 (65%)",    # 0
     "14天退货机 (20%)",    # 1
     "商业渠道回收 (15%)",   # 2
@@ -143,12 +164,38 @@ sankey_labels = [
     "B2B集采 (10%)"         # 10
 ]
 
-# 定义11个节点颜色
+# 定义11个节点颜色 (List)
 sankey_colors = [
     JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], 
     JP_COLORS[3], JP_COLORS[4], "#64748b", 
     "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"
 ]
 
-# 定义连线数据 (Source, Target, Value)
-link_source = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5
+# 定义连线数据 (List) - 确保索引在 0-10 之间
+# 源节点索引
+src_indices = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5]
+# 目标节点索引
+tgt_indices = [3, 3, 3, 4, 5, 6, 7, 8, 9, 10]
+# 流量数值
+flow_values = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10]
+
+# 构建图表对象
+fig_sankey = go.Figure(data=[go.Sankey(
+    node = dict(
+        pad = 40,
+        thickness = 25,
+        line = dict(color = "#ffffff", width = 1),
+        label = sankey_nodes,
+        color = sankey_colors,
+        font = dict(color="black", size=12) # 强制黑字
+    ),
+    link = dict(
+        source = src_indices,
+        target = tgt_indices,
+        value = flow_values,
+        color = "rgba(189, 195, 199, 0.4)"
+    )
+)])
+
+fig_sankey.update_layout(height=550)
+st.plotly_chart(fig_sankey, use_container_width=True)
