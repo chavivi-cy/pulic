@@ -3,26 +3,29 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
-# 页面基础配置
+# 1. 页面基础配置
 st.set_page_config(page_title="苹果再制造业务深度决策系统", layout="wide")
 
-# CSS 视觉增强：保持顶部白色文字，背景深色
+# 2. CSS 视觉增强：顶部白字，底部黑字，背景深色
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
+    /* 顶部指标数值和标签强制为白色 */
     [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem !important; }
     [data-testid="stMetricLabel"] { color: #ffffff !important; font-size: 1.1rem !important; }
+    /* 指标卡片背景 */
     .stMetric { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+    /* 标题颜色 */
     h1, h2, h3 { color: #f8fafc; font-family: "Hiragino Sans GB", sans-serif; }
     .stInfo { background-color: #1e293b; border: none; color: #cbd5e1; border-radius: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 顶部声明 ---
+# 3. 顶部声明
 st.title("🕊️ 苹果产品再制造 (Remanufacturing) 业务调研系统")
 st.info("📊 **业务基准：** 以 iPhone 15 Pro 为财务模型。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
 
-# --- 侧边栏 ---
+# 4. 侧边栏参数
 st.sidebar.header("🍃 决策因子模拟")
 base_vol_k = st.sidebar.slider("月流转规模 (k - 千台)", 1, 1000, 500)
 base_vol = base_vol_k * 1000
@@ -30,12 +33,12 @@ retail_p = st.sidebar.slider("零售价 (CNY)", 4000, 9500, 6199)
 buyback_r = st.sidebar.slider("回收成本占比 (%)", 50, 85, 65)
 refurb_c = st.sidebar.slider("整备成本 (CNY)", 300, 1500, 750)
 
-# 核心损益计算
+# 财务计算
 buyback_v = retail_p * (buyback_r / 100)
 profit = retail_p - (buyback_v + refurb_c + 480) 
 margin = (profit / retail_p) * 100
 
-# --- 指标看板 (白色文字) ---
+# 5. 指标看板 (白色文字)
 c1, c2, c3, c4 = st.columns(4)
 with c1: st.metric("预测单机利润", f"¥{profit:,.0f}", f"{margin:.1f}% 毛利")
 with c2: st.metric("回收对价锚点", f"¥{buyback_v:,.0f}", f"{buyback_r}% 占比")
@@ -44,13 +47,14 @@ with c4: st.metric("零件配对率", "99.9%", "数字化壁垒")
 
 st.markdown("---")
 
-# --- 8大课题交互区 ---
+# 6. 8大课题交互区
 st.header("🌿 行业专题调研：交互可视化中心")
 qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", 
       "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", 
       "Q7: 跨品牌残值对标", "Q8: 业务风险红线矩阵"]
 sel_q = st.selectbox("请点选课题查看对应的交互图表：", qs)
 
+# 定义通用色板
 JP_COLORS = ['#87adab', '#d6a0a0', '#e9c46a', '#a8dadc', '#82a1b1']
 
 if sel_q == qs[0]:
@@ -62,13 +66,18 @@ if sel_q == qs[0]:
     ])
     st.plotly_chart(fig, use_container_width=True)
 
+elif sel_q == qs[1]:
+    st.write("### Q2: 商业目标 - 拉新与留存 (旭日图)")
+    df2 = pd.DataFrame({"A":["拉新","拉新","留存","留存"],"B":["新入iOS","安卓切换","旧机换新","服务增购"],"V":[20,15,45,20]})
+    fig = px.sunburst(df2, path=['A','B'], values='V', color_discrete_sequence=[JP_COLORS[0], JP_COLORS[3]])
+    st.plotly_chart(fig, use_container_width=True)
+
 elif sel_q == qs[2]:
     st.write("### Q3: KSF - 技术确权维度图")
-    # 修复 Q3 内部变量定义
-    df3_data = dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权'])
-    fig3 = px.line_polar(df3_data, r='r', theta='theta', line_close=True)
-    fig3.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
-    st.plotly_chart(fig3, use_container_width=True)
+    df3 = pd.DataFrame(dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权']))
+    fig = px.line_polar(df3, r='r', theta='theta', line_close=True)
+    fig.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
+    st.plotly_chart(fig, use_container_width=True)
 
 elif sel_q == qs[3]:
     st.write(f"### Q4: 损耗过滤 - 基于 {base_vol_k}k 台规模")
@@ -113,37 +122,33 @@ elif sel_q == qs[7]:
                      labels={'x':'X：风险发生概率', 'y':'Y：负面冲击程度'})
     st.plotly_chart(fig, use_container_width=True)
 
-else:
-    st.write("### Q2: 商业目标 - 拉新与留存 (旭日图)")
-    df2 = pd.DataFrame({"A":["拉新","拉新","留存","留存"],"B":["新入iOS","安卓切换","旧机换新","服务增购"],"V":[20,15,45,20]})
-    fig = px.sunburst(df2, path=['A','B'], values='V', color_discrete_sequence=[JP_COLORS[0], JP_COLORS[3]])
-    st.plotly_chart(fig, use_container_width=True)
-
 st.markdown("---")
 
-# --- 模块三：流转全景 (彻底修复版) ---
+# 7. 流转全景 (终极无错版)
 st.header("🌐 中国区逆向流转全景")
 
-nodes_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
-nodes_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
+# === 核心修复区：定义变量，防止语法错误 ===
+# 定义11个节点标签
+sankey_labels = [
+    "个人回收源 (65%)",    # 0
+    "14天退货机 (20%)",    # 1
+    "商业渠道回收 (15%)",   # 2
+    "价值评估",             # 3
+    "逆向物流",             # 4
+    "检测整备工厂",         # 5
+    "京东自营 (45%)",       # 6
+    "爱回收渠道 (20%)",     # 7
+    "官网直营 (15%)",       # 8
+    "转转及其他 (10%)",     # 9
+    "B2B集采 (10%)"         # 10
+]
 
-# 确保 Figure 初始化语法完全闭合且索引匹配
-fig_sankey = go.Figure(data=[go.Sankey(
-    node = dict(
-        pad = 40,
-        thickness = 25,
-        line = dict(color = "#ffffff", width = 1),
-        label = nodes_labels,
-        color = nodes_colors,
-        font = dict(color="black", size=12)
-    ),
-    link = dict(
-        source = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5], 
-        target = [3, 3, 3, 4, 5, 6, 7, 8, 9, 10], 
-        value = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10], 
-        color = "rgba(189, 195, 199, 0.4)"
-    )
-)])
+# 定义11个节点颜色
+sankey_colors = [
+    JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], 
+    JP_COLORS[3], JP_COLORS[4], "#64748b", 
+    "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"
+]
 
-fig_sankey.update_layout(height=550)
-st.plotly_chart(fig_sankey, use_container_width=True)
+# 定义连线数据 (Source, Target, Value)
+link_source = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5
