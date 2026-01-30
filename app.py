@@ -19,11 +19,11 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # --- 顶部声明 ---
-st.title("🕊️ 苹果产品再制造业务调研系统")
-st.info("📊 **业务基准：** 以 iPhone 15 Pro 为财务模型（2025-Q1）。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
+st.title("🕊️ 苹果产品再制造 (Remanufacturing) 业务调研系统")
+st.info("📊 **业务基准：** 以 iPhone 15 Pro 为财务模型。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
 
 # --- 侧边栏 ---
-st.sidebar.header("🍃 决策因子")
+st.sidebar.header("🍃 决策因子模拟")
 base_vol_k = st.sidebar.slider("月流转规模 (k - 千台)", 1, 1000, 500)
 base_vol = base_vol_k * 1000
 retail_p = st.sidebar.slider("零售价 (CNY)", 4000, 9500, 6199)
@@ -64,10 +64,11 @@ if sel_q == qs[0]:
 
 elif sel_q == qs[2]:
     st.write("### Q3: KSF - 技术确权维度图")
-    df3 = pd.DataFrame(dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权']))
-    fig = px.line_polar(df3, r='r', theta='theta', line_close=True)
-    fig.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
-    st.plotly_chart(fig, use_container_width=True)
+    # 修复 Q3 内部变量定义
+    df3_data = dict(r=[98, 95, 99, 88, 92], theta=['部件配对','SN溯源','激活校验','ATE测试','定价权'])
+    fig3 = px.line_polar(df3_data, r='r', theta='theta', line_close=True)
+    fig3.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
+    st.plotly_chart(fig3, use_container_width=True)
 
 elif sel_q == qs[3]:
     st.write(f"### Q4: 损耗过滤 - 基于 {base_vol_k}k 台规模")
@@ -120,16 +121,13 @@ else:
 
 st.markdown("---")
 
-# --- 模块三：流转全景 (终极修复版：修复括号不闭合与索引报错) ---
+# --- 模块三：流转全景 (彻底修复版) ---
 st.header("🌐 中国区逆向流转全景")
 
-# 1. 明确定义 11 个节点
 nodes_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
-
-# 2. 定义 11 个颜色
 nodes_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
 
-# 3. 构建 Sankey 图表对象，确保括号完全闭合
+# 确保 Figure 初始化语法完全闭合且索引匹配
 fig_sankey = go.Figure(data=[go.Sankey(
     node = dict(
         pad = 40,
@@ -147,5 +145,5 @@ fig_sankey = go.Figure(data=[go.Sankey(
     )
 )])
 
-fig_sankey.update_layout(height=550, margin=dict(l=20, r=20, t=20, b=20))
+fig_sankey.update_layout(height=550)
 st.plotly_chart(fig_sankey, use_container_width=True)
