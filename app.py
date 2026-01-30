@@ -161,7 +161,11 @@ fig_s = go.Figure(go.Sankey(
             "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"
         ], 
         color=[JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"],
-        font = dict(color="black", size=12) # 字体颜色设置
+        # ⚠️ 注意这里：font 必须是 dict(...) 格式，不能直接写字符串
+        font = dict(
+            color = "black",
+            size = 12
+        )
     ),
     link = dict(
         source=[0, 1, 2, 3, 4, 5, 5, 5, 5, 5], 
