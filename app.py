@@ -9,10 +9,34 @@ st.set_page_config(page_title="苹果再制造业务深度决策系统", layout=
 # CSS 视觉增强
 st.markdown("""
     <style>
+    /* 1. 全局背景：深色调 */
     .main { background-color: #0e1117; }
-    .stMetric { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-    .stMetric [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem; }
-    h1, h2, h3 { color: #f8fafc; font-family: "Hiragino Sans GB", sans-serif; }
+
+    /* 2. 指标卡片：深蓝背景与边框 */
+    .stMetric { 
+        background-color: #1e293b; 
+        border-radius: 12px; 
+        padding: 20px; 
+        border: 1px solid #334155; 
+    }
+
+    /* 3. 指标数值：强制纯白，字号加大 */
+    [data-testid="stMetricValue"] { 
+        color: #ffffff !important; 
+        font-size: 1.8rem !important; 
+    }
+
+    /* 4. 指标标签（标题）：强制纯白，确保手机端清晰 */
+    [data-testid="stMetricLabel"] { 
+        color: #ffffff !important; 
+        font-size: 1.1rem !important; 
+    }
+
+    /* 5. 标题字体：雅致日系感 */
+    h1, h2, h3 { 
+        color: #f8fafc; 
+        font-family: "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
