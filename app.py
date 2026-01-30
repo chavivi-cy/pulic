@@ -157,6 +157,12 @@ fig_s = go.Figure(go.Sankey(
         "价值评估", "逆向物流", "检测整备工厂", 
         "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"
     ], color=[JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]),
+    font = dict(
+            color = "black",  # 设置字体颜色为黑色
+            size = 12         # 可选：设置字体大小（根据需要调整）
+        )
+        # ----------------------------
+    ),
     link = dict(source=[0, 1, 2, 3, 4, 5, 5, 5, 5, 5], target=[3, 3, 3, 4, 5, 6, 7, 8, 9, 10], value=[65, 20, 15, 100, 100, 45, 20, 15, 10, 10], color="rgba(200, 200, 200, 0.4)")
 ))
 st.plotly_chart(fig_s, use_container_width=True)
