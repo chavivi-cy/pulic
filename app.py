@@ -3,19 +3,17 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
-# 1. 页面基础配置
+# 1. 页面配置
 st.set_page_config(page_title="苹果再制造业务深度决策系统", layout="wide")
 
-# 2. CSS 视觉增强
+# 2. CSS 视觉增强 (顶部白字，底部黑字)
 st.markdown("""
     <style>
     .main { background-color: #0e1117; }
-    /* 顶部指标数值和标签强制为白色 */
+    /* 顶部指标强制白色 */
     [data-testid="stMetricValue"] { color: #ffffff !important; font-size: 1.8rem !important; }
     [data-testid="stMetricLabel"] { color: #ffffff !important; font-size: 1.1rem !important; }
-    /* 指标卡片背景 */
     .stMetric { background-color: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
-    /* 标题颜色 */
     h1, h2, h3 { color: #f8fafc; font-family: "Hiragino Sans GB", sans-serif; }
     .stInfo { background-color: #1e293b; border: none; color: #cbd5e1; border-radius: 10px; }
     </style>
@@ -25,7 +23,7 @@ st.markdown("""
 st.title("🕊️ 苹果产品再制造 (Remanufacturing) 业务调研系统")
 st.info("📊 **业务基准：** 以 iPhone 15 Pro 为财务模型。iPhone 官翻机在华主攻授权分销，Mac/iPad 涵盖直营路径。")
 
-# 4. 侧边栏参数
+# 4. 侧边栏
 st.sidebar.header("🍃 决策因子模拟")
 base_vol_k = st.sidebar.slider("月流转规模 (k - 千台)", 1, 1000, 500)
 base_vol = base_vol_k * 1000
@@ -33,12 +31,12 @@ retail_p = st.sidebar.slider("零售价 (CNY)", 4000, 9500, 6199)
 buyback_r = st.sidebar.slider("回收成本占比 (%)", 50, 85, 65)
 refurb_c = st.sidebar.slider("整备成本 (CNY)", 300, 1500, 750)
 
-# 财务计算
+# 计算
 buyback_v = retail_p * (buyback_r / 100)
 profit = retail_p - (buyback_v + refurb_c + 480) 
 margin = (profit / retail_p) * 100
 
-# 5. 指标看板 (白色文字)
+# 5. 指标看板
 c1, c2, c3, c4 = st.columns(4)
 with c1: st.metric("预测单机利润", f"¥{profit:,.0f}", f"{margin:.1f}% 毛利")
 with c2: st.metric("回收对价锚点", f"¥{buyback_v:,.0f}", f"{buyback_r}% 占比")
@@ -47,21 +45,17 @@ with c4: st.metric("零件配对率", "99.9%", "数字化壁垒")
 
 st.markdown("---")
 
-# 6. 8大课题交互区
+# 6. 交互中心
 st.header("🌿 行业专题调研：交互可视化中心")
-qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", 
-      "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", 
-      "Q7: 跨品牌残值对标", "Q8: 业务风险红线矩阵"]
+qs = ["Q1: 商业模型解析", "Q2: 核心商业目标", "Q3: 关键成功因素(KSF)", "Q4: 业务流程与损耗", "Q5: 出货渠道分布", "Q6: 目标用户画像", "Q7: 跨品牌残值对标", "Q8: 业务风险红线矩阵"]
 sel_q = st.selectbox("请点选课题查看对应的交互图表：", qs)
 
-# 定义通用色板
 JP_COLORS = ['#87adab', '#d6a0a0', '#e9c46a', '#a8dadc', '#82a1b1']
 
 if sel_q == qs[0]:
     st.write("### Q1: 商业模型 - 价值堆叠筑屋图")
-    # 单行定义 data 列表，防止语法错误
-    bar_data = [go.Bar(name='回收成本', x=['P&L'], y=[buyback_v], marker_color=JP_COLORS[0]), go.Bar(name='整备增值', x=['P&L'], y=[refurb_c+480], base=buyback_v, marker_color=JP_COLORS[1]), go.Bar(name='净利润', x=['P&L'], y=[profit], base=buyback_v+refurb_c+480, marker_color=JP_COLORS[2])]
-    fig = go.Figure(data=bar_data)
+    # 单行写法防止报错
+    fig = go.Figure(data=[go.Bar(name='回收成本', x=['P&L'], y=[buyback_v], marker_color=JP_COLORS[0]), go.Bar(name='整备增值', x=['P&L'], y=[refurb_c+480], base=buyback_v, marker_color=JP_COLORS[1]), go.Bar(name='净利润', x=['P&L'], y=[profit], base=buyback_v+refurb_c+480, marker_color=JP_COLORS[2])])
     st.plotly_chart(fig, use_container_width=True)
 
 elif sel_q == qs[1]:
@@ -72,8 +66,8 @@ elif sel_q == qs[1]:
 
 elif sel_q == qs[2]:
     st.write("### Q3: KSF - 技术确权维度图")
-    df3_data = pd.DataFrame({"r": [98, 95, 99, 88, 92], "theta": ['部件配对', 'SN溯源', '激活校验', 'ATE测试', '定价权']})
-    fig = px.line_polar(df3_data, r='r', theta='theta', line_close=True)
+    df3 = pd.DataFrame({"r": [98, 95, 99, 88, 92], "theta": ['部件配对', 'SN溯源', '激活校验', 'ATE测试', '定价权']})
+    fig = px.line_polar(df3, r='r', theta='theta', line_close=True)
     fig.update_traces(fill='toself', fillcolor='rgba(135, 173, 171, 0.4)', line_color=JP_COLORS[0])
     st.plotly_chart(fig, use_container_width=True)
 
@@ -110,39 +104,25 @@ elif sel_q == qs[7]:
 
 st.markdown("---")
 
-# 7. 流转全景 (核心修复区：使用单行定义，杜绝语法错误)
+# 7. 流转全景 (Sankey 修复核心：单行定义，确保无语法错误)
 st.header("🌐 中国区逆向流转全景")
 
-# 1. 定义节点 (Labels) - 共11个
-sankey_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
+# 节点标签 (11个)
+sk_labels = ["个人回收源 (65%)", "14天退货机 (20%)", "商业渠道回收 (15%)", "价值评估", "逆向物流", "检测整备工厂", "京东自营 (45%)", "爱回收渠道 (20%)", "官网直营 (15%)", "转转及其他 (10%)", "B2B集采 (10%)"]
+# 节点颜色 (11个)
+sk_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
+# 连线源索引
+sk_source = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5]
+# 连线目标索引 (确保最大索引为10)
+sk_target = [3, 3, 3, 4, 5, 6, 7, 8, 9, 10]
+# 连线数值
+sk_value = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10]
 
-# 2. 定义颜色 (Colors) - 共11个
-sankey_colors = [JP_COLORS[0], JP_COLORS[1], JP_COLORS[2], JP_COLORS[3], JP_COLORS[4], "#64748b", "#f4a261", "#fbc02d", "#457b9d", "#ffcc80", "#e76f51"]
-
-# 3. 定义连线 (Links) - 核心修复：单行书写，防止报错
-# 0->3, 1->3, 2->3 (回收->评估) | 3->4 (评估->物流) | 4->5 (物流->工厂) | 5->6,7,8,9,10 (工厂->渠道)
-# 索引对应关系：0:个人, 1:退货, 2:商业, 3:评估, 4:物流, 5:工厂, 6:京东, 7:爱回收, 8:官网, 9:转转, 10:B2B
-link_source = [0, 1, 2, 3, 4, 5, 5, 5, 5, 5]
-link_target = [3, 3, 3, 4, 5, 6, 7, 8, 9, 10]
-link_value = [65, 20, 15, 100, 100, 45, 20, 15, 10, 10]
-
-# 4. 构建图表 (强制黑字)
-fig_sankey = go.Figure(data=[go.Sankey(
-    node = dict(
-        pad = 40,
-        thickness = 25,
-        line = dict(color = "#ffffff", width = 1),
-        label = sankey_labels,
-        color = sankey_colors,
-        font = dict(color="black", size=12)
-    ),
-    link = dict(
-        source = link_source,
-        target = link_target,
-        value = link_value,
-        color = "rgba(189, 195, 199, 0.4)"
-    )
+# 构建图表 (强制黑色字体)
+fig_s = go.Figure(data=[go.Sankey(
+    node = dict(pad=40, thickness=25, line=dict(color="white", width=1), label=sk_labels, color=sk_colors, font=dict(color="black", size=12)),
+    link = dict(source=sk_source, target=sk_target, value=sk_value, color="rgba(189, 195, 199, 0.4)")
 )])
 
-fig_sankey.update_layout(height=550)
-st.plotly_chart(fig_sankey, use_container_width=True)
+fig_s.update_layout(height=550)
+st.plotly_chart(fig_s, use_container_width=True)
