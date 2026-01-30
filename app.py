@@ -173,5 +173,5 @@ fig_s = go.Figure(go.Sankey(
         value=[65, 20, 15, 100, 100, 45, 20, 15, 10, 10], 
         color="rgba(200, 200, 200, 0.4)"
     )
-))
+)
 st.plotly_chart(fig_s, use_container_width=True)
